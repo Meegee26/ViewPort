@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { Movie } from '../types/movie';
 import { getImageUrl, getMovieVideos, getGenres } from '../services/movieService';
 import MovieModal from './MovieModal';
+import { useIsMobile } from '../hooks/useMediaQuery';
 import {
   Tooltip,
   TooltipContent,
@@ -74,6 +75,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
   const [trailer, setTrailer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isBrowser, setIsBrowser] = useState(false);
+  const isMobile = useIsMobile();
   const hoverTimeoutRef = useRef<NodeJS.Timeout>();
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverPositionRef = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
@@ -89,6 +91,8 @@ export default function MovieCard({ movie }: MovieCardProps) {
   }, []);
 
   const handleMouseEnter = async (e: React.MouseEvent) => {
+    if (isMobile) return;
+    
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       hoverPositionRef.current = {
@@ -104,6 +108,8 @@ export default function MovieCard({ movie }: MovieCardProps) {
   };
 
   const handleMouseLeave = () => {
+    if (isMobile) return;
+    
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
@@ -167,7 +173,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
   };
 
   const HoverPreview = () => {
-    if (!isHovered || !isBrowser) return null;
+    if (!isHovered || !isBrowser || isMobile) return null;
     
     return createPortal(
       <div style={getPreviewStyle()}>
@@ -186,7 +192,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
                 />
               ) : (
                 <img
-                  src={movie.backdrop_path ? `${process.env.NEXT_PUBLIC_TMDB_IMAGE_URL}/original${movie.backdrop_path}` : undefined}
+                  src={movie.backdrop_path ? (getImageUrl(movie.backdrop_path, 'original') || undefined) : undefined}
                   alt={movie.title}
                   className="w-full h-full object-cover rounded-t-2xl transform transition-transform hover:scale-105"
                 />
@@ -353,7 +359,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
       >
         {/* Regular card */}
         <div className={`transition-all duration-300 ${
-          isHovered ? 'invisible' : 'visible'
+          isHovered && !isMobile ? 'invisible' : 'visible'
         }`}>
           <div className="aspect-[2/3] bg-background-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
             {imageUrl ? (

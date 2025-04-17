@@ -5,6 +5,10 @@ interface ViewPortLogoProps {
 }
 
 export default function ViewPortLogo({ className = "w-10 h-10" }: ViewPortLogoProps) {
+
+  const API_URL = process.env.NEXT_PUBLIC_TMDB_API_URL;
+  const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+
   return (
     <div className="flex items-center gap-3">
       <svg

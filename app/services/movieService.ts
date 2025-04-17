@@ -2,6 +2,7 @@ import { Movie, MovieResponse } from '../types/movie';
 
 const API_URL = process.env.NEXT_PUBLIC_TMDB_API_URL;
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+const IMAGE_URL = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 const genreMap = {
@@ -35,7 +36,7 @@ export const getGenres = (genreIds: number[]) => {
 
 export const getImageUrl = (path: string | null, size: string = 'w500') => {
   if (!path) return null;
-  return `${process.env.NEXT_PUBLIC_TMDB_IMAGE_URL}/${size}${path}`;
+  return `${IMAGE_URL}/${size}${path}`;
 };
 
 interface FetchMoviesOptions {

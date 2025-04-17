@@ -19,7 +19,12 @@ export default function MovieGrid({ initialMovies }: MovieGridProps) {
     try {
       const nextPage = page + 1;
       const { results: newMovies } = await fetchMovies('popular', nextPage);
-      setMovies([...movies, ...newMovies]);
+      
+      const existingIds = new Set(movies.map(movie => movie.id));
+
+      const uniqueNewMovies = newMovies.filter(movie => !existingIds.has(movie.id));
+      
+      setMovies([...movies, ...uniqueNewMovies]);
       setPage(nextPage);
     } catch (error) {
       console.error('Failed to load more movies:', error);

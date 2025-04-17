@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Movie } from '../types/movie';
 import { getMovieVideos, getImageUrl, getGenres, getMovieCredits } from '../services/movieService';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 const scrollbarStyles = `
   /* Global scrollbar styles for the modal */
@@ -133,6 +134,7 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
   const [loading, setLoading] = useState(true);
   const [credits, setCredits] = useState<Credits>({ director: null, cast: [] });
   const [genreList, setGenreList] = useState<Genre[]>([]);
+  const isMobile = useIsMobile();
   const backdropUrl = getImageUrl(movie.backdrop_path, 'original');
   const posterUrl = getImageUrl(movie.poster_path, 'w500');
   const year = movie.release_date ? new Date(movie.release_date).getFullYear() : '';
@@ -252,23 +254,23 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 z-10 text-white/80 hover:text-white bg-black/40 hover:bg-black/60 rounded-full p-2 transition-all duration-300 transform hover:scale-110"
+            className="absolute top-3 right-3 sm:top-6 sm:right-6 z-10 text-white/80 hover:text-white bg-black/40 hover:bg-black/60 rounded-full p-2 transition-all duration-300 transform hover:scale-110"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
           <div className="flex flex-col h-[90vh] modal-content">
-            {/* Video/Image Section */}
-            <div className="relative w-full aspect-video bg-black">
+            {/* Video/Image Section - Adjust aspect ratio for mobile */}
+            <div className={`relative w-full ${isMobile ? 'aspect-[16/11]' : 'aspect-video'} bg-black`}>
               {loading ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 sm:h-16 sm:w-16 border-4 border-purple-500 border-t-transparent"></div>
                 </div>
               ) : trailer ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1`}
+                  src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1`}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -284,16 +286,16 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent pointer-events-none" />
               
-              {/* Action Buttons - Overlay on video */}
-              <div className="absolute bottom-6 left-6 right-6 flex items-center gap-4">
-                <button className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              {/* Action Buttons - Responsive adjustments */}
+              <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex items-center gap-2 sm:gap-4">
+                <button className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 sm:px-8 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 flex-1 sm:flex-initial">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   Watch Now
                 </button>
-                <button className="bg-gray-700/80 hover:bg-gray-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button className="bg-gray-700/80 hover:bg-gray-600 text-white px-3 py-2 sm:px-8 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 flex-1 sm:flex-initial">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Add to List
@@ -301,10 +303,10 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
               </div>
             </div>
 
-            {/* Content Section */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-              <div className="flex gap-8 items-start">
-                {/* Poster */}
+            {/* Content Section - Responsive padding and spacing */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar">
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-start">
+                {/* Poster - Only shown on larger screens */}
                 <div className="hidden lg:block flex-shrink-0">
                   {posterUrl ? (
                     <img
@@ -322,24 +324,26 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
                   )}
                 </div>
 
-                {/* Movie Details */}
-                <div className="flex-1 space-y-6">
+                {/* Movie Details - Responsive text sizing */}
+                <div className="flex-1 space-y-4 sm:space-y-6">
                   <div>
-                    <h1 className="text-4xl font-bold text-white mb-4 tracking-wide flex items-center gap-4">
-                      {movie.title}
-                      <span className="text-2xl text-gray-400 font-normal">({year})</span>
-                      <div className={`flex items-center gap-2 ${ratingStyles.background} ${ratingStyles.glow} px-4 py-2 rounded-xl ml-2 transition-all duration-300`}>
-                        <svg className={`w-6 h-6 ${ratingStyles.text}`} fill="currentColor" viewBox="0 0 24 24">
+                    <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-4">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-wide">
+                        {movie.title}
+                      </h1>
+                      <span className="text-lg sm:text-2xl text-gray-400 font-normal">({year})</span>
+                      <div className={`flex items-center gap-1 ${ratingStyles.background} ${ratingStyles.glow} px-2 py-1 sm:px-4 sm:py-2 rounded-xl transition-all duration-300`}>
+                        <svg className={`w-4 h-4 sm:w-6 sm:h-6 ${ratingStyles.text}`} fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                         </svg>
-                        <span className={`text-2xl font-bold ${ratingStyles.text}`}>{rating}%</span>
+                        <span className={`text-lg sm:text-xl md:text-2xl font-bold ${ratingStyles.text}`}>{rating}%</span>
                       </div>
-                    </h1>
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    </div>
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
                       {genres.map((genreName, index) => (
                         <span
                           key={index}
-                          className="px-3 py-1 text-sm bg-purple-900 bg-opacity-50 text-purple-100 rounded-full hover:bg-purple-800 transition-colors"
+                          className="px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm bg-purple-900 bg-opacity-50 text-purple-100 rounded-full hover:bg-purple-800 transition-colors"
                         >
                           {genreName}
                         </span>
@@ -347,35 +351,35 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-white">Overview</h2>
-                    <p className="text-lg text-gray-300 leading-relaxed">
+                  <div className="space-y-2 sm:space-y-4">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-white">Overview</h2>
+                    <p className="text-sm sm:text-base md:text-lg text-gray-300 leading-relaxed">
                       {movie.overview || "No overview available for this title."}
                     </p>
                   </div>
 
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-white">Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2 sm:space-y-4">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-white">Details</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                       <div>
-                        <h3 className="text-gray-400 font-medium mb-1">Release Date</h3>
-                        <p className="text-white">{formatReleaseDate(movie.release_date)}</p>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Release Date</h3>
+                        <p className="text-white text-sm sm:text-base">{formatReleaseDate(movie.release_date)}</p>
                       </div>
                       <div>
-                        <h3 className="text-gray-400 font-medium mb-1">Director</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Director</h3>
                         {credits.director ? (
-                          <p className="text-white">{credits.director.name}</p>
+                          <p className="text-white text-sm sm:text-base">{credits.director.name}</p>
                         ) : (
-                          <p className="text-gray-500">Unknown</p>
+                          <p className="text-gray-500 text-sm sm:text-base">Unknown</p>
                         )}
                       </div>
                       <div>
-                        <h3 className="text-gray-400 font-medium mb-1">Main Cast</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Main Cast</h3>
                         {credits.cast && credits.cast.length > 0 ? (
                           <div className="flex flex-col gap-1">
-                            {credits.cast.map(actor => (
+                            {credits.cast.slice(0, isMobile ? 3 : 5).map(actor => (
                               <div key={actor.id} className="flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
                                   {actor.profile_path ? (
                                     <img 
                                       src={getImageUrl(actor.profile_path, 'w200') || ''}
@@ -388,17 +392,17 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
                                     </div>
                                   )}
                                 </div>
-                                <p className="text-white text-sm">
+                                <p className="text-white text-xs sm:text-sm">
                                   <span>{actor.name}</span>
                                   <span className="text-gray-400 text-xs ml-1">
-                                    ({actor.character})
+                                    {!isMobile && `(${actor.character})`}
                                   </span>
                                 </p>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500">No cast information</p>
+                          <p className="text-gray-500 text-sm">No cast information</p>
                         )}
                       </div>
                     </div>
